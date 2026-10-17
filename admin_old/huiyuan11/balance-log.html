@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>账变记录<?php echo $info ? ' - ' . $info['username'] : ''; ?></title>
+    <link rel="stylesheet" href="/app/admin/component/layui/css/layui.css"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .layui-card {
+            margin: 15px;
+        }
+        
+        .search-form {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+        
+        .layui-table {
+            width: 100% !important;
+        }
+        
+        .layui-table-view {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <!-- 搜索表单 -->
+                <div class="search-form">
+                    <form class="layui-form" lay-filter="searchForm" id="searchForm">
+                        <input type="hidden" name="uid" value="<?php echo $info ? $info['id'] : ''; ?>">
+                        
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="width:40px">类型:</label>
+                                <div class="layui-input-inline" style="width:150px">
+                                    <select name="type">
+                                        <option value="">全部</option>
+                                        <option value="money">余额宝钱包</option>
+                                        <option value="order">代购</option>
+                                        <option value="cancel">撤单</option>
+                                        <option value="reward">返奖</option>
+                                        <option value="yeb_dq">余额宝定期</option>
+                                        <option value="yeb_hq">余额宝活期</option>
+                                        <option value="yeb_lixi">余额宝利息</option>
+                                        <option value="fanshui">每日加奖</option>
+                                        <option value="jinjishenhe">晋级奖励</option>
+                                        <option value="yongjinshenhe">代理返点</option>
+                                        <option value="xima">洗码</option>
+                                        <option value="point">积分</option>
+                                        <option value="activity_bindcard">绑定银行赠送活动</option>
+                                        <option value="activity_cz">充值活动</option>
+                                        <option value="activity_czzs">充值赠送活动</option>
+                                        <option value="activity_rxf">日消费赠送活动</option>
+                                        <option value="activity_rks">日亏损赠送活动</option>
+                                        <option value="activity_yxf">月消费赠送活动</option>
+                                        <option value="activity_yks">月亏损赠送活动</option>
+                                        <option value="rollback">后台撤单</option>
+                                        <option value="withdraw">提款</option>
+                                        <option value="adminadd">管理员加</option>
+                                        <option value="adminjian">管理员减</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="width:70px">选择时间:</label>
+                                <div class="layui-input-inline" style="width:140px">
+                                    <input type="text" name="sDate" id="sDate" placeholder="开始时间" class="layui-input"/>
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline" style="width:140px">
+                                    <input type="text" name="eDate" id="eDate" placeholder="结束时间" class="layui-input"/>
+                                </div>
+                            </div>
+                            
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="width:50px">用户名:</label>
+                                <div class="layui-input-inline" style="width:120px">
+                                    <input type="text" name="username" placeholder="输入用户名" class="layui-input"/>
+                                </div>
+                            </div>
+                            
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="width:40px">单号:</label>
+                                <div class="layui-input-inline" style="width:150px">
+                                    <input type="text" name="trano" placeholder="输入单号" class="layui-input"/>
+                                </div>
+                            </div>
+                            
+                            <div class="layui-inline">
+                                <button class="layui-btn" lay-submit lay-filter="search">
+                                    <i class="layui-icon">&#xe615;</i>搜索
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 数据表格 -->
+                <table id="dataTable" lay-filter="dataTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app/admin/component/layui/layui.js"></script>
+    <script>
+        layui.use(['table', 'form', 'laydate'], function() {
+            var table = layui.table;
+            var form = layui.form;
+            var laydate = layui.laydate;
+            var $ = layui.$;
+            
+            // 日期选择器
+            laydate.render({
+                elem: '#sDate',
+                type: 'datetime'
+            });
+            
+            laydate.render({
+                elem: '#eDate',
+                type: 'datetime'
+            });
+            
+            // 渲染表格
+            var tableIns = table.render({
+                elem: '#dataTable',
+                url: '/app/admin/member/balance-log-list',
+                where: {uid: '<?php echo $info ? $info['id'] : ''; ?>'},
+                page: true,
+                limit: 20,
+                limits: [20, 50, 100],
+                cols: [[
+                    {field: 'id', title: 'ID', width: 80, align: 'center', sort: true},
+                    {field: 'trano', title: '单号', width: 150, align: 'center'},
+                    {field: 'username', title: '用户名', width: 120, align: 'center'},
+                    {field: 'typename', title: '类型名称', width: 120, align: 'center'},
+                    {field: 'amount', title: '金额', width: 120, align: 'center', templet: function(d) {
+                        var amount = parseFloat(d.amount || 0);
+                        var color = amount >= 0 ? 'green' : 'red';
+                        return '<span style="color: ' + color + ';">' + amount.toFixed(2) + '</span>';
+                    }},
+                    {field: 'amountbefor', title: '变动前', width: 120, align: 'center', templet: function(d) {
+                        return parseFloat(d.amountbefor || 0).toFixed(2);
+                    }},
+                    {field: 'amountafter', title: '变动后', width: 120, align: 'center', templet: function(d) {
+                        return parseFloat(d.amountafter || 0).toFixed(2);
+                    }},
+                    {field: 'remark', title: '备注', minWidth: 200, align: 'center'},
+                    {field: 'oddtime_text', title: '时间', width: 160, align: 'center'}
+                ]]
+            });
+            
+            // 搜索
+            form.on('submit(search)', function(data) {
+                tableIns.reload({
+                    where: data.field,
+                    page: {
+                        curr: 1
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>
+

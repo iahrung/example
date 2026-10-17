@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>修改积分</title>
+    <link rel="stylesheet" href="/app/admin/component/layui/css/layui.css"/>
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form class="layui-form" lay-filter="editForm">
+            <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">当前积分:</label>
+                <div class="layui-input-block">
+                    <div style="line-height: 38px; padding-left: 10px; color: #FF5722; font-weight: bold;">
+                        <?php echo $info['point']; ?>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>变动积分:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="point" lay-verify="required|number" placeholder="请输入积分" class="layui-input"/>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="remark" placeholder="备注" class="layui-input"/>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red;">*</span>变动类型:</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="type" value="1" title="增加" checked>
+                    <input type="radio" name="type" value="-1" title="减少">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" class="layui-btn" lay-submit lay-filter="submitBtn">确定</button>
+                    <button type="button" class="layui-btn layui-btn-primary" onclick="closeWindow()">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <script src="/app/admin/component/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layer'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            
+            // 监听提交
+            form.on('submit(submitBtn)', function(data) {
+                $.ajax({
+                    url: '/app/admin/member/edit-point?id=<?php echo $info['id']; ?>',
+                    type: 'POST',
+                    data: data.field,
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.code === 0) {
+                            layer.msg('操作成功', {icon: 1}, function() {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                            });
+                        } else {
+                            layer.msg(res.msg || '操作失败', {icon: 2});
+                        }
+                    },
+                    error: function() {
+                        layer.msg('网络错误', {icon: 2});
+                    }
+                });
+                return false;
+            });
+        });
+        
+        function closeWindow() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+    </script>
+</body>
+</html>
+
